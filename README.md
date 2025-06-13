@@ -47,7 +47,7 @@ git clone https://github.com/zsh-users/zsh-history-substring-search ~/.oh-my-zsh
 ## 4. 下载并使用本仓库中的 .zshrc
 
 ```bash
-curl -o ~/.zshrc https://raw.githubusercontent.com/unclefish7/dotfiles/main/.zshrc
+curl -o ~/.zshrc https://raw.githubusercontent.com/unclefish7/zsh-config/main/.zshrc
 source ~/.zshrc
 ```
 
