@@ -73,11 +73,11 @@ plugins=(
   git
   z
   zsh-autosuggestions
-  zsh-syntax-highlighting
   history-substring-search
-  zsh-vi-mode
+  zsh-syntax-highlighting
 )
 
+DISABLE_MAGIC_FUNCTIONS=true
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -113,3 +113,67 @@ source $ZSH/oh-my-zsh.sh
 
 bindkey '^g' fzf-cd-widget
 
+alias ll='ls -la'
+
+# ===== Clash Proxy =====
+PROXY_HOST="127.0.0.1"
+PROXY_PORT="7897"
+
+proxy_on() {
+    local proxy="http://${PROXY_HOST}:${PROXY_PORT}"
+
+    export http_proxy="$proxy"
+    export https_proxy="$proxy"
+    export HTTP_PROXY="$proxy"
+    export HTTPS_PROXY="$proxy"
+
+    export all_proxy="socks5h://${PROXY_HOST}:${PROXY_PORT}"
+    export ALL_PROXY="$all_proxy"
+
+    export no_proxy="localhost,127.0.0.1,::1"
+    export NO_PROXY="$no_proxy"
+
+    echo "Configuring APT proxy..."
+    sudo tee /etc/apt/apt.conf.d/95proxy >/dev/null <<EOF
+Acquire::http::Proxy "$proxy";
+Acquire::https::Proxy "$proxy";
+EOF
+
+    echo "Proxy ON -> $proxy"
+}
+
+proxy_off() {
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+    unset all_proxy ALL_PROXY
+    unset no_proxy NO_PROXY
+
+    if [[ -f /etc/apt/apt.conf.d/95proxy ]]; then
+        sudo rm -f /etc/apt/apt.conf.d/95proxy
+    fi
+
+    echo "Proxy OFF"
+}
+
+proxy_status() {
+    echo "HTTP_PROXY=${HTTP_PROXY:-OFF}"
+    echo "HTTPS_PROXY=${HTTPS_PROXY:-OFF}"
+    echo "ALL_PROXY=${ALL_PROXY:-OFF}"
+
+    if [[ -f /etc/apt/apt.conf.d/95proxy ]]; then
+        echo "APT proxy: ON"
+        cat /etc/apt/apt.conf.d/95proxy
+    else
+        echo "APT proxy: OFF"
+    fi
+}
+# ===== Clash Proxy End =====
+# Proxy only for VS Code Remote environment
+if [[ "$VSCODE_RESOLVING_ENVIRONMENT" == "1" ]]; then
+    export HTTP_PROXY="http://127.0.0.1:7897"
+    export HTTPS_PROXY="http://127.0.0.1:7897"
+    export http_proxy="$HTTP_PROXY"
+    export https_proxy="$HTTPS_PROXY"
+
+    export NO_PROXY="localhost,127.0.0.1,::1"
+    export no_proxy="$NO_PROXY"
+fi
