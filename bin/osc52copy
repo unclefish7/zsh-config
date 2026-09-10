@@ -1,0 +1,6 @@
+#!/bin/sh
+# Copy stdin to the terminal clipboard using OSC 52.
+# The terminal (for example iTerm2) decides whether to honor this sequence.
+
+encoded=$(base64 | tr -d '\n') || exit 0
+printf '\033]52;c;%s\a' "$encoded" > /dev/tty 2>/dev/null || exit 0
